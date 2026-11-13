@@ -6,8 +6,9 @@
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="description" content="Portus Lab Experience · simulador educativo de operaciones portuarias y logísticas.">
+  <title>Portus Lab Experience</title>
 
-  <!-- Vista previa al compartir (WhatsApp, correo, redes). Cambia portuslabexperience por tu usuario de GitHub (DESPLIEGUE.md, B2). -->
+  <!-- Vista previa al compartir (WhatsApp, correo, redes) -->
   <meta property="og:type" content="website">
   <meta property="og:locale" content="es_CO">
   <meta property="og:site_name" content="Portus Lab">
@@ -24,7 +25,6 @@
   <meta name="twitter:title" content="Portus Lab Experience">
   <meta name="twitter:description" content="Simulador educativo de operaciones portuarias y logísticas. Instálalo en tu celular.">
   <meta name="twitter:image" content="https://portuslabexperience.github.io/PortusLabExperience/iconos/vista-previa.jpg">
-  <title>Portus Lab Experience</title>
 
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0a2d6b">
@@ -40,52 +40,86 @@
     :root { color-scheme: light; --azul: #0a2d6b; --blanco: #ffffff; --texto-suave: #3c4f73; }
     * { box-sizing: border-box; }
     html, body { height: 100%; margin: 0; background: var(--blanco); }
-    body { font-family: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--azul); overflow: hidden; }
+    body { font-family: "Barlow", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; color: var(--azul); overflow: hidden;
+           -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
     .oculto { display: none !important; }
 
-    /* Cargador: blanco y azul #0a2d6b, como el de la aplicación */
-    #cargador { position: fixed; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; background: var(--blanco); transition: opacity .35s ease; }
+    /* El portal ocupa toda la pantalla desde el primer momento; el cargador va encima y se desvanece */
+    #marco { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: var(--blanco); }
+
+    /* Cargador: el mismo de la app de ejemplo (logo, puntos en onda, barra arriba), en blanco y azul */
+    #cargador { position: fixed; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                padding: 24px; text-align: center; background: var(--blanco); transition: opacity .25s ease; }
     #cargador.saliendo { opacity: 0; pointer-events: none; }
-    #cargador img { width: 132px; height: 132px; animation: latir 1.6s ease-in-out infinite; }
-    #cargador h1 { margin: 6px 0 0; font-size: 1.4rem; font-weight: 700; }
-    #cargador p { margin: 0; font-size: .95rem; color: var(--texto-suave); min-height: 1.2em; }
-    .barra { width: min(240px, 70vw); height: 6px; margin-top: 8px; border-radius: 3px; background: #dbe3f1; overflow: hidden; }
-    .barra::after { content: ""; display: block; height: 100%; width: 40%; border-radius: 3px; background: var(--azul); animation: correr 1.2s ease-in-out infinite; }
-    @keyframes latir { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
-    @keyframes correr { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+    #cargador img { width: 84px; height: 84px; border-radius: 20px; box-shadow: 0 10px 26px rgba(10, 45, 107, .22); margin-bottom: 18px; }
+    #cargador h1 { margin: 0 0 4px; font-size: 1.05rem; font-weight: 700; }
+    #cargador p { margin: 0 0 18px; max-width: 340px; font-size: .9rem; line-height: 1.45; color: var(--texto-suave); }
 
-    /* El portal ocupa toda la pantalla; aparece al terminar de cargar */
-    #marco { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: var(--blanco); opacity: 0; transition: opacity .3s ease; }
-    #marco.listo { opacity: 1; }
+    .puntos { display: flex; align-items: center; justify-content: center; gap: 10px; height: 22px; }
+    .puntos i { display: block; border-radius: 50%; background: var(--azul); opacity: .25; animation: onda 1.4s ease-in-out infinite; will-change: transform, opacity; }
+    .puntos i:nth-child(1) { width: 6px; height: 6px; animation-delay: 0s; }
+    .puntos i:nth-child(2) { width: 7px; height: 7px; animation-delay: .12s; }
+    .puntos i:nth-child(3) { width: 8px; height: 8px; animation-delay: .24s; }
+    .puntos i:nth-child(4) { width: 9px; height: 9px; animation-delay: .36s; }
+    .puntos i:nth-child(5) { width: 10px; height: 10px; animation-delay: .48s; }
+    .puntos i:nth-child(6) { width: 11px; height: 11px; animation-delay: .60s; }
+    .puntos i:nth-child(7) { width: 12px; height: 12px; animation-delay: .72s; }
+    @keyframes onda {
+      0%, 100% { transform: translateX(-3px) scale(.7); opacity: .25; }
+      40% { transform: translateX(3px) scale(1.3); opacity: 1; }
+      70% { transform: translateX(0) scale(.9); opacity: .5; }
+    }
 
-    /* Sin conexión y configuración */
-    #sinConexion, #sinConfig { position: fixed; inset: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; background: var(--blanco); }
-    #sinConexion h2, #sinConfig h2 { margin: 0; font-size: 1.35rem; }
+    /* Barra de progreso arriba, como en el ejemplo */
+    .progreso { position: fixed; left: 0; top: 0; height: 3px; width: 0; z-index: 3; background: var(--azul);
+                box-shadow: 0 0 8px rgba(10, 45, 107, .45); transition: width 8s cubic-bezier(.1, .7, .2, 1), opacity .3s ease; }
+    .progreso.activo { width: 85%; }
+    .progreso.fin { width: 100%; opacity: 0; transition: width .2s ease, opacity .4s ease .2s; }
+
+    /* Avisos: «tarda más de lo normal», «sin conexión», «falta configurar» */
+    .lento { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 6; background: var(--blanco);
+             border-radius: 12px; border-left: 6px solid var(--azul); box-shadow: 0 10px 26px rgba(0, 0, 0, .16);
+             padding: 10px 16px; font-size: .9rem; color: var(--texto-suave); display: flex; gap: 12px; align-items: center;
+             max-width: calc(100% - 20px); }
+    #sinConexion, #sinConfig { position: fixed; inset: 0; z-index: 7; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                               gap: 12px; padding: 24px; text-align: center; background: var(--blanco); }
+    #sinConexion h2, #sinConfig h2 { margin: 0; font-size: 1.3rem; }
     #sinConexion p, #sinConfig p { margin: 0; max-width: 34ch; color: var(--texto-suave); }
-    .btn { font: inherit; font-weight: 700; min-height: 44px; min-width: 44px; padding: 10px 22px; border-radius: 10px; border: 2px solid var(--azul); background: var(--azul); color: var(--blanco); cursor: pointer; }
+    .btn { font: inherit; font-weight: 700; min-height: 44px; min-width: 44px; padding: 10px 22px; border-radius: 10px;
+           border: 2px solid var(--azul); background: var(--azul); color: var(--blanco); cursor: pointer; }
     .btn-sec { background: var(--blanco); color: var(--azul); }
-    .btn:focus-visible { outline: 3px solid #1f6feb; outline-offset: 2px; }
+    .enlace { font: inherit; font-weight: 700; color: var(--azul); background: none; border: 0; padding: 4px; cursor: pointer; text-decoration: underline; min-height: 44px; }
+    .btn:focus-visible, .enlace:focus-visible { outline: 3px solid #1f6feb; outline-offset: 2px; }
 
     /* Instalar (Android: botón; iPhone: indicación) */
-    #instalar { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 4; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--azul); border-radius: 14px; background: var(--blanco); box-shadow: 0 8px 24px rgba(10, 45, 107, .22); }
+    #instalar { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 5; display: flex; flex-wrap: wrap;
+                align-items: center; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--azul); border-radius: 14px; background: var(--blanco);
+                box-shadow: 0 8px 24px rgba(10, 45, 107, .22); }
     #instalar p { flex: 1 1 200px; margin: 0; font-size: .95rem; color: #1d2b4a; }
     #instalar .acciones { display: flex; flex-wrap: wrap; gap: 8px; }
 
     @media (prefers-reduced-motion: reduce) {
-      #cargador img, .barra::after { animation: none; }
-      #cargador, #marco { transition: none; }
+      .puntos i { animation: none; opacity: .6; }
+      #cargador, .progreso { transition: none; }
     }
   </style>
 </head>
 <body>
+  <div class="progreso" id="progreso" aria-hidden="true"></div>
+
   <div id="cargador" role="status" aria-live="polite">
-    <img src="iconos/icono-512.png" alt="" width="132" height="132">
+    <img src="iconos/icono-192.png" alt="">
     <h1>Portus Lab Experience</h1>
-    <p id="cargadorTexto">Abriendo el simulador…</p>
-    <div class="barra" aria-hidden="true"></div>
+    <p>Simulador educativo de operaciones portuarias y logísticas</p>
+    <div class="puntos" aria-label="Cargando"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   </div>
 
   <iframe id="marco" title="Portus Lab Experience" allow="clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+
+  <div class="lento" id="avisoLento" role="status" hidden>
+    <span>Está tardando más de lo normal.</span>
+    <button type="button" class="enlace" id="btnVolver">Volver a intentar</button>
+  </div>
 
   <section id="sinConexion" class="oculto" role="alert" aria-labelledby="scTitulo">
     <h2 id="scTitulo">Sin conexión</h2>
@@ -111,23 +145,27 @@
     'use strict';
 
     /* ── Configuración ───────────────────────────────────────────────
-       Pega aquí la dirección /exec del simulador («Implementar → Gestionar implementaciones»).
-       Debe ser la misma que la Script Property URL_APP. No pongas «?» ni «#» al final. */
+       Dirección /exec del simulador (la misma que la Script Property URL_APP). Sin «?» ni «#» al final. */
     var URL_APP = 'https://script.google.com/macros/s/AKfycbzY8qvnMCLxp5jBIhIv-p7Rv0t5M3xfnzmHSLuZwb6RCN7iZZI3A5xSWh8GPh0SK4pyAA/exec';
 
     var cargador = document.getElementById('cargador');
-    var cargadorTexto = document.getElementById('cargadorTexto');
+    var progreso = document.getElementById('progreso');
     var marco = document.getElementById('marco');
+    var avisoLento = document.getElementById('avisoLento');
+    var btnVolver = document.getElementById('btnVolver');
     var sinConexion = document.getElementById('sinConexion');
+    var btnReintentar = document.getElementById('btnReintentar');
     var sinConfig = document.getElementById('sinConfig');
     var instalar = document.getElementById('instalar');
     var instalarTexto = document.getElementById('instalarTexto');
     var btnInstalar = document.getElementById('btnInstalar');
     var btnNoInstalar = document.getElementById('btnNoInstalar');
-    var btnReintentar = document.getElementById('btnReintentar');
 
     var ultimaUrl = '';
-    var tope = null;
+    var cargadorVisible = true;
+    var primeraCarga = true;
+    var temporizadorLento = null;
+    var temporizadorRespaldo = null;
     var pantallaLista = false;
     var diferido = null;
     var CLAVE_OCULTAR = 'pgi_instalar_ocultar';
@@ -139,34 +177,79 @@
     /* Lo que el portal puede pedir dentro del envoltorio: el inicio o ?page=… (sin más parámetros). */
     var RUTA_PERMITIDA = /^(\?page=[a-z]{2,20}(&c=[%A-Za-z0-9._~-]{1,120})?)?$/;
 
+    /* ── Cargador y avisos ───────────────────────────────────────── */
+    function ocultarCargador() {
+      if (!cargadorVisible) return;
+      cargadorVisible = false;
+      clearTimeout(temporizadorRespaldo);
+      cargador.classList.add('saliendo');
+      progreso.classList.remove('activo');
+      progreso.classList.add('fin');
+      setTimeout(function () { cargador.classList.add('oculto'); }, 260);
+    }
+
+    function empezarProgreso() {
+      progreso.classList.remove('fin');
+      void progreso.offsetWidth;   /* reinicia la animación */
+      progreso.classList.add('activo');
+    }
+
+    /* En Android la página de Google se queda «Cargando…» hasta que recibe el foco o un cambio de tamaño:
+       se le da foco y se fuerza un repintado (como hace la app de ejemplo). */
+    function sacudir() {
+      try { marco.focus(); } catch (e) { }
+      marco.style.height = '99%';
+      setTimeout(function () { marco.style.height = '100%'; }, 80);
+    }
+
     function mostrarSinConexion() { sinConexion.classList.remove('oculto'); }
     function ocultarSinConexion() { sinConexion.classList.add('oculto'); }
 
+    /* Cada carga: el marco se abre de nuevo; si tarda, se avisa con «Volver a intentar» (no «Sin conexión»). */
     function cargar(url) {
       ultimaUrl = url;
       ocultarSinConexion();
+      avisoLento.hidden = true;
+      clearTimeout(temporizadorLento);
+      clearTimeout(temporizadorRespaldo);
       if (navigator.onLine === false) { mostrarSinConexion(); return; }
-      clearTimeout(tope);
-      pantallaLista = false;
-      marco.classList.remove('listo');
-      /* Si el portal no responde en 30 s, se ofrece Reintentar. */
-      tope = setTimeout(function () { mostrarSinConexion(); }, 30000);
+      empezarProgreso();
+      temporizadorLento = setTimeout(function () { avisoLento.hidden = false; }, 25000);
+      /* Respaldo: si el evento «load» no llega, el cargador se quita a los 6 s y se fuerza el repintado. */
+      temporizadorRespaldo = setTimeout(function () {
+        if (cargadorVisible) alCargarPagina();
+        sacudir();
+      }, 6000);
       marco.src = url;
+    }
+
+    /* Un solo punto de entrada para «ya se ve la página»: quita el cargador y el aviso de espera. */
+    function alCargarPagina() {
+      clearTimeout(temporizadorLento);
+      avisoLento.hidden = true;
+      ocultarCargador();
+      progreso.classList.remove('activo');
+      if (!pantallaLista) {
+        pantallaLista = true;
+        mostrarInstalarSiCorresponde();
+      }
     }
 
     marco.addEventListener('load', function () {
       /* Ignora la carga vacía (about:blank) que el navegador hace al crear el marco. */
       var src = marco.getAttribute('src');
       if (!src || src === 'about:blank') return;
-      clearTimeout(tope);
-      ocultarSinConexion();
-      marco.classList.add('listo');
-      if (!pantallaLista) {
-        pantallaLista = true;
-        cargador.classList.add('saliendo');
-        setTimeout(function () { cargador.classList.add('oculto'); }, 360);
-        mostrarInstalarSiCorresponde();
-      }
+      clearTimeout(temporizadorRespaldo);
+      alCargarPagina();
+      setTimeout(sacudir, 400);
+    });
+
+    btnVolver.addEventListener('click', function () { cargar(ultimaUrl || (URL_APP + fragmento)); });
+    btnReintentar.addEventListener('click', function () { cargar(ultimaUrl || (URL_APP + fragmento)); });
+
+    window.addEventListener('offline', mostrarSinConexion);
+    window.addEventListener('online', function () {
+      if (!sinConexion.classList.contains('oculto')) { cargar(ultimaUrl || (URL_APP + fragmento)); }
     });
 
     /* Mensajes del portal (Apps Script): «pgi-navegar» pide cargar otra página dentro del marco.
@@ -181,20 +264,16 @@
       if (ev.source && typeof ev.source.postMessage === 'function') {
         ev.source.postMessage({ pl: 'pgi-ok', url: u }, '*');
       }
-      cargar(URL_APP + resto);
-    });
-
-    btnNoInstalar.addEventListener('click', function () { ocultarInstalar(true); });
-    btnReintentar.addEventListener('click', function () { cargar(ultimaUrl || (URL_APP + fragmento)); });
-
-    window.addEventListener('offline', mostrarSinConexion);
-    window.addEventListener('online', function () {
-      if (!sinConexion.classList.contains('oculto')) { cargar(ultimaUrl || (URL_APP + fragmento)); }
+      /* Dentro del portal ya hay su propio cargador: aquí no se muestra el de la envoltura. */
+      ultimaUrl = URL_APP + resto;
+      ocultarSinConexion();
+      if (navigator.onLine === false) { mostrarSinConexion(); return; }
+      marco.src = ultimaUrl;
     });
 
     /* ── Instalación ─────────────────────────────────────────────── */
     var ua = navigator.userAgent || '';
-    var esIphone = /iPhone|iPod/.test(ua) || (/iPad/.test(ua));
+    var esIphone = /iPhone|iPod|iPad/.test(ua);
     var esSafariIos = esIphone && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
     var yaInstalada = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
     var recordadaNo = false;
@@ -233,6 +312,7 @@
       }
     }
 
+    btnNoInstalar.addEventListener('click', function () { ocultarInstalar(true); });
     btnInstalar.addEventListener('click', function () {
       if (!diferido) return;
       var aviso = diferido;
@@ -247,9 +327,6 @@
       sinConfig.classList.remove('oculto');
     } else {
       cargar(URL_APP + fragmento);
-      setTimeout(function () {
-        if (!pantallaLista) cargadorTexto.textContent = 'Esto puede tardar unos segundos la primera vez.';
-      }, 6000);
     }
 
     if ('serviceWorker' in navigator) {
