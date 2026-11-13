@@ -3,16 +3,18 @@
    Nunca guarda ni responde por nada que venga de Google (script.google.com, googleusercontent.com…): esas
    peticiones no pasan por aquí y se cargan siempre en línea.
    Cuando cambies algo de esta carpeta, sube VERSION para que los celulares descarten la copia anterior. */
-var VERSION = 'portus-envoltorio-2026-11-13e';
+var VERSION = 'portus-envoltorio-2026-11-13f';
 var ARCHIVOS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './iconos/icono-192.png',
-  './iconos/icono-512.png',
-  './iconos/icono-maskable-512.png',
-  './iconos/apple-touch-icon.png',
-  './iconos/favicon-32.png'
+  './iconos/icono-192.png?v=2',
+  './iconos/icono-512.png?v=2',
+  './iconos/icono-maskable-512.png?v=2',
+  './iconos/apple-touch-icon.png?v=2',
+  './iconos/favicon-32.png?v=2',
+  './iconos/favicon.ico?v=2',
+  './iconos/logo-cargador.png?v=2'
 ];
 
 self.addEventListener('install', function (e) {

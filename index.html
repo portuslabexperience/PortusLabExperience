@@ -26,37 +26,56 @@
   <meta name="twitter:description" content="Simulador educativo de operaciones portuarias y logísticas. Instálalo en tu celular.">
   <meta name="twitter:image" content="https://portuslabexperience.github.io/PortusLabExperience/iconos/vista-previa.jpg">
 
+  <!-- App instalada e íconos (?v=2: obliga a navegadores y sistemas a tomar los íconos redondeados nuevos) -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0a2d6b">
   <meta name="application-name" content="Portus Lab">
-  <link rel="icon" type="image/png" sizes="32x32" href="iconos/favicon-32.png">
-  <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
+  <link rel="icon" href="iconos/favicon.ico?v=2" sizes="16x16 32x32 48x48">
+  <link rel="icon" type="image/png" sizes="32x32" href="iconos/favicon-32.png?v=2">
+  <link rel="icon" type="image/png" sizes="192x192" href="iconos/icono-192.png?v=2">
+  <link rel="apple-touch-icon" sizes="180x180" href="iconos/apple-touch-icon.png?v=2">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Portus Lab">
+  <meta name="format-detection" content="telephone=no">
 
   <style>
-    :root { color-scheme: light; --azul: #0a2d6b; --blanco: #ffffff; --texto-suave: #3c4f73; }
+    :root { color-scheme: light; --azul: #0a2d6b; --blanco: #ffffff; --texto-suave: #3c4f73;
+            --curva: cubic-bezier(.2, .7, .2, 1);
+            --seg-arriba: env(safe-area-inset-top, 0px); --seg-abajo: env(safe-area-inset-bottom, 0px);
+            --seg-izq: env(safe-area-inset-left, 0px); --seg-der: env(safe-area-inset-right, 0px); }
     * { box-sizing: border-box; }
     html, body { height: 100%; margin: 0; background: var(--blanco); }
-    body { font-family: "Barlow", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; color: var(--azul); overflow: hidden;
-           -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+    body { font-family: "Barlow", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; color: var(--azul); overflow: hidden;
+           -webkit-tap-highlight-color: transparent; overscroll-behavior: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     .oculto { display: none !important; }
 
-    /* El portal ocupa toda la pantalla desde el primer momento; el cargador va encima y se desvanece */
-    #marco { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: var(--blanco); }
+    /* El simulador ocupa la pantalla sin meterse bajo la muesca ni la barra de inicio del iPhone (en Android y escritorio los márgenes son 0) */
+    #marco { position: fixed; top: var(--seg-arriba); right: var(--seg-der); bottom: var(--seg-abajo); left: var(--seg-izq);
+             width: calc(100% - var(--seg-izq) - var(--seg-der)); height: calc(100% - var(--seg-arriba) - var(--seg-abajo));
+             border: 0; background: var(--blanco); }
+    #marco.sacudido { height: calc(99% - var(--seg-arriba) - var(--seg-abajo)); }
 
-    /* Cargador: el mismo de la app de ejemplo (logo, puntos en onda, barra arriba), en blanco y azul */
-    #cargador { position: fixed; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
-                padding: 24px; text-align: center; background: var(--blanco); transition: opacity .25s ease; }
-    #cargador.saliendo { opacity: 0; pointer-events: none; }
-    #cargador img { width: 84px; height: 84px; border-radius: 20px; box-shadow: 0 10px 26px rgba(10, 45, 107, .22); margin-bottom: 18px; }
+    /* Cargador blanco y azul. TODO lo que se mueve usa solo transform y opacity: el navegador lo anima en su propio hilo
+       (compositor) y sigue fluido aunque Google esté ocupado cargando el simulador. Nunca width, height, top, margin ni sombras. */
+    #cargador { position: fixed; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center;
+                padding: calc(24px + var(--seg-arriba)) 24px calc(24px + var(--seg-abajo)); text-align: center; background: var(--blanco);
+                opacity: 1; transition: opacity .32s var(--curva), visibility 0s linear 0s; contain: layout paint; }
+    #cargador.saliendo { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .32s var(--curva), visibility 0s linear .32s; }
+    .caja { display: flex; flex-direction: column; align-items: center; animation: entrar .45s var(--curva) both; }
+    .logo { position: relative; width: 88px; height: 88px; margin-bottom: 18px; }
+    .logo img { position: relative; z-index: 1; display: block; width: 88px; height: 88px; border-radius: 20px;
+                box-shadow: 0 10px 26px rgba(10, 45, 107, .20); animation: flotar 2.8s ease-in-out infinite; will-change: transform; }
+    /* Halo que late detrás del logo (escala + opacidad) */
+    .logo::before { content: ""; position: absolute; inset: -8px; border-radius: 28px; background: rgba(10, 45, 107, .08);
+                    animation: latir 2.8s ease-in-out infinite; will-change: transform, opacity; }
     #cargador h1 { margin: 0 0 4px; font-size: 1.05rem; font-weight: 700; }
     #cargador p { margin: 0 0 18px; max-width: 340px; font-size: .9rem; line-height: 1.45; color: var(--texto-suave); }
 
     .puntos { display: flex; align-items: center; justify-content: center; gap: 10px; height: 22px; }
-    .puntos i { display: block; border-radius: 50%; background: var(--azul); opacity: .25; animation: onda 1.4s ease-in-out infinite; will-change: transform, opacity; }
+    .puntos i { display: block; flex: none; border-radius: 50%; background: var(--azul); opacity: .25;
+                animation: onda 1.4s ease-in-out infinite both; will-change: transform, opacity; }
     .puntos i:nth-child(1) { width: 6px; height: 6px; animation-delay: 0s; }
     .puntos i:nth-child(2) { width: 7px; height: 7px; animation-delay: .12s; }
     .puntos i:nth-child(3) { width: 8px; height: 8px; animation-delay: .24s; }
@@ -65,54 +84,71 @@
     .puntos i:nth-child(6) { width: 11px; height: 11px; animation-delay: .60s; }
     .puntos i:nth-child(7) { width: 12px; height: 12px; animation-delay: .72s; }
     @keyframes onda {
-      0%, 100% { transform: translateX(-3px) scale(.7); opacity: .25; }
-      40% { transform: translateX(3px) scale(1.3); opacity: 1; }
-      70% { transform: translateX(0) scale(.9); opacity: .5; }
+      0%, 100% { transform: translate3d(-3px, 0, 0) scale(.7); opacity: .25; }
+      40%      { transform: translate3d(3px, -3px, 0) scale(1.3); opacity: 1; }
+      70%      { transform: translate3d(0, 0, 0) scale(.9); opacity: .5; }
     }
+    @keyframes flotar { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -4px, 0); } }
+    @keyframes latir { 0%, 100% { transform: scale(.86); opacity: 0; } 50% { transform: scale(1.06); opacity: 1; } }
+    @keyframes entrar { from { opacity: 0; transform: translate3d(0, 10px, 0) scale(.98); } to { opacity: 1; transform: none; } }
 
-    /* Barra de progreso arriba, como en el ejemplo */
-    .progreso { position: fixed; left: 0; top: 0; height: 3px; width: 0; z-index: 3; background: var(--azul);
-                box-shadow: 0 0 8px rgba(10, 45, 107, .45); transition: width 8s cubic-bezier(.1, .7, .2, 1), opacity .3s ease; }
-    .progreso.activo { width: 85%; }
-    .progreso.fin { width: 100%; opacity: 0; transition: width .2s ease, opacity .4s ease .2s; }
+    /* Barra de progreso arriba: crece con scaleX (no con width), así no se congela */
+    .progreso { position: fixed; left: 0; top: var(--seg-arriba); width: 100%; height: 3px; z-index: 3; background: var(--azul);
+                transform-origin: 0 50%; transform: scaleX(0); opacity: 1; pointer-events: none; will-change: transform;
+                transition: transform 8s cubic-bezier(.1, .7, .2, 1), opacity .3s ease; }
+    .progreso.activo { transform: scaleX(.85); }
+    .progreso.fin { transform: scaleX(1); opacity: 0; transition: transform .2s ease, opacity .4s ease .2s; }
 
     /* Avisos: «tarda más de lo normal», «sin conexión», «falta configurar» */
-    .lento { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 6; background: var(--blanco);
+    .lento { position: fixed; left: 50%; bottom: calc(14px + var(--seg-abajo)); transform: translateX(-50%); z-index: 6; background: var(--blanco);
              border-radius: 12px; border-left: 6px solid var(--azul); box-shadow: 0 10px 26px rgba(0, 0, 0, .16);
              padding: 10px 16px; font-size: .9rem; color: var(--texto-suave); display: flex; gap: 12px; align-items: center;
-             max-width: calc(100% - 20px); }
+             width: max-content; max-width: calc(100% - 20px); }
     .lento[hidden] { display: none; }
     #sinConexion, #sinConfig { position: fixed; inset: 0; z-index: 7; display: flex; flex-direction: column; align-items: center; justify-content: center;
                                gap: 12px; padding: 24px; text-align: center; background: var(--blanco); }
     #sinConexion h2, #sinConfig h2 { margin: 0; font-size: 1.3rem; }
     #sinConexion p, #sinConfig p { margin: 0; max-width: 34ch; color: var(--texto-suave); }
     .btn { font: inherit; font-weight: 700; min-height: 44px; min-width: 44px; padding: 10px 22px; border-radius: 10px;
-           border: 2px solid var(--azul); background: var(--azul); color: var(--blanco); cursor: pointer; }
+           border: 2px solid var(--azul); background: var(--azul); color: var(--blanco); cursor: pointer; touch-action: manipulation; }
     .btn-sec { background: var(--blanco); color: var(--azul); }
-    .enlace { font: inherit; font-weight: 700; color: var(--azul); background: none; border: 0; padding: 4px; cursor: pointer; text-decoration: underline; min-height: 44px; }
+    .enlace { font: inherit; font-weight: 700; color: var(--azul); background: none; border: 0; padding: 4px; cursor: pointer; text-decoration: underline;
+              min-height: 44px; touch-action: manipulation; }
     .btn:focus-visible, .enlace:focus-visible { outline: 3px solid #1f6feb; outline-offset: 2px; }
 
-    /* Instalar (Android: botón; iPhone: indicación) */
-    #instalar { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 5; display: flex; flex-wrap: wrap;
-                align-items: center; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--azul); border-radius: 14px; background: var(--blanco);
-                box-shadow: 0 8px 24px rgba(10, 45, 107, .22); }
+    /* Instalar (Android y escritorio: botón; iPhone: indicación) */
+    #instalar { position: fixed; left: calc(12px + var(--seg-izq)); right: calc(12px + var(--seg-der)); bottom: calc(12px + var(--seg-abajo)); z-index: 5;
+                display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--azul); border-radius: 14px;
+                background: var(--blanco); box-shadow: 0 8px 24px rgba(10, 45, 107, .22); animation: subir .35s var(--curva) both; }
+    @media (min-width: 720px) { #instalar { left: auto; width: 460px; } }
     #instalar p { flex: 1 1 200px; margin: 0; font-size: .95rem; color: #1d2b4a; }
     #instalar .acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+    @keyframes subir { from { opacity: 0; transform: translate3d(0, 12px, 0); } to { opacity: 1; transform: none; } }
 
+    /* «Reducir movimiento» (Windows, Android, iPhone): nada se desplaza ni crece, pero los puntos siguen
+       encendiéndose en onda con un fundido suave, para que se vea que está cargando. */
     @media (prefers-reduced-motion: reduce) {
-      .puntos i { animation: none; opacity: .6; }
-      #cargador, .progreso { transition: none; }
+      .caja, #instalar { animation: none; }
+      .logo img { animation: none; }
+      .logo::before { animation: none; opacity: 0; }
+      .puntos i { animation-name: onda-suave; animation-duration: 1.6s; }
+      @keyframes onda-suave { 0%, 100% { opacity: .2; } 40% { opacity: 1; } }
+      .progreso { transition: opacity .3s ease; }
+      .progreso.activo { transform: scaleX(.85); }
+      #cargador, #cargador.saliendo { transition: opacity .2s linear, visibility 0s linear .2s; }
     }
   </style>
 </head>
 <body>
   <div class="progreso" id="progreso" aria-hidden="true"></div>
 
-  <div id="cargador" role="status" aria-live="polite">
-    <img src="iconos/icono-192.png" alt="">
-    <h1>Portus Lab Experience</h1>
-    <p>Simulador educativo de operaciones portuarias y logísticas</p>
-    <div class="puntos" aria-label="Cargando"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div id="cargador" role="status" aria-live="polite" aria-busy="true">
+    <div class="caja">
+      <div class="logo"><img src="iconos/logo-cargador.png?v=2" width="88" height="88" alt="" decoding="sync" fetchpriority="high"></div>
+      <h1>Portus Lab Experience</h1>
+      <p>Simulador educativo de operaciones portuarias y logísticas</p>
+      <div class="puntos" role="img" aria-label="Cargando"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
   </div>
 
   <iframe id="marco" title="Portus Lab Experience" allow="clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
@@ -149,6 +185,12 @@
        Dirección /exec del simulador (la misma que la Script Property URL_APP). Sin «?» ni «#» al final. */
     var URL_APP = 'https://script.google.com/macros/s/AKfycbzY8qvnMCLxp5jBIhIv-p7Rv0t5M3xfnzmHSLuZwb6RCN7iZZI3A5xSWh8GPh0SK4pyAA/exec';
 
+    /* Tiempos del cargador (ms) */
+    var T_SACUDIR = [3500, 7000];   /* empujones a Google si aún no avisa (Android a veces se queda esperando foco) */
+    var T_ESPERA_LISTO = 4000;      /* tras «load», cuánto se espera el aviso «pgi-listo» si el simulador ya lo sabe dar */
+    var T_TOPE = 10000;             /* pase lo que pase, a los 10 s se muestra el simulador */
+    var T_LENTO = 25000;            /* aviso «Está tardando más de lo normal» */
+
     var cargador = document.getElementById('cargador');
     var progreso = document.getElementById('progreso');
     var marco = document.getElementById('marco');
@@ -164,12 +206,14 @@
 
     var ultimaUrl = '';
     var cargadorVisible = true;
-    var primeraCarga = true;
+    var cargado = false;
+    var listoRecibido = false;
+    var temporizadores = [];
     var temporizadorLento = null;
-    var temporizadorRespaldo = null;
     var pantallaLista = false;
     var diferido = null;
     var CLAVE_OCULTAR = 'pgi_instalar_ocultar';
+    var CLAVE_LISTO = 'pgi_listo';   /* '1' = el simulador ya avisó alguna vez «pgi-listo» en este equipo */
 
     /* #registro=CÓDIGO y #verificar=CÓDIGO: el fragmento pasa tal cual al portal (Google no lo ve). */
     var FRAGMENTO = /^#(registro|verificar)=[A-Za-z0-9-]{4,40}$/;
@@ -177,51 +221,67 @@
 
     /* Lo que el portal puede pedir dentro del envoltorio: el inicio o ?page=… (sin más parámetros). */
     var RUTA_PERMITIDA = /^(\?page=[a-z]{2,20}(&c=[%A-Za-z0-9._~-]{1,120})?)?$/;
+    /* De dónde puede venir «pgi-listo»: la página del simulador que sirve Google. */
+    var ORIGEN_GOOGLE = /^https:\/\/([a-z0-9-]+\.)*(googleusercontent\.com|script\.google\.com)$/;
+
+    function leer(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function guardar(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+    function limpiarTemporizadores() { temporizadores.forEach(clearTimeout); temporizadores = []; }
+    function despues(ms, fn) { temporizadores.push(setTimeout(fn, ms)); }
+
+    /* Ejecuta fn cuando el cargador ya se pintó y su animación arrancó (dos cuadros), antes de que Google ocupe
+       el hilo principal. Respaldo de 150 ms por si la pestaña está en segundo plano (ahí no hay cuadros). */
+    function trasPrimerCuadro(fn) {
+      var hecho = false;
+      function ir() { if (!hecho) { hecho = true; fn(); } }
+      if (window.requestAnimationFrame) requestAnimationFrame(function () { requestAnimationFrame(ir); });
+      setTimeout(ir, 150);
+    }
 
     /* ── Cargador y avisos ───────────────────────────────────────── */
     function ocultarCargador() {
       if (!cargadorVisible) return;
       cargadorVisible = false;
-      clearTimeout(temporizadorRespaldo);
+      limpiarTemporizadores();
       cargador.classList.add('saliendo');
+      cargador.setAttribute('aria-busy', 'false');
       progreso.classList.remove('activo');
       progreso.classList.add('fin');
-      setTimeout(function () { cargador.classList.add('oculto'); }, 260);
+      setTimeout(function () { cargador.classList.add('oculto'); }, 360);
     }
 
     function empezarProgreso() {
       progreso.classList.remove('fin');
-      void progreso.offsetWidth;   /* reinicia la animación */
+      void progreso.offsetWidth;   /* reinicia la transición */
       progreso.classList.add('activo');
     }
 
-    /* En Android la página de Google se queda «Cargando…» hasta que recibe el foco o un cambio de tamaño:
-       se le da foco y se fuerza un repintado (como hace la app de ejemplo). */
+    /* En Android la página de Google a veces se queda «Cargando…» hasta que recibe el foco o un cambio de tamaño:
+       se le da foco y se fuerza un repintado. Solo se usa si el simulador todavía no avisó que ya se ve. */
     function sacudir() {
-      try { marco.focus(); } catch (e) { }
-      marco.style.height = '99%';
-      setTimeout(function () { marco.style.height = '100%'; }, 80);
+      if (listoRecibido) return;
+      try { marco.focus({ preventScroll: true }); } catch (e) { try { marco.focus(); } catch (e2) { } }
+      marco.classList.add('sacudido');
+      setTimeout(function () { marco.classList.remove('sacudido'); }, 80);
     }
 
     function mostrarSinConexion() { sinConexion.classList.remove('oculto'); }
     function ocultarSinConexion() { sinConexion.classList.add('oculto'); }
 
-    /* Cada carga: el marco se abre de nuevo; si tarda, se avisa con «Volver a intentar» (no «Sin conexión»). */
+    /* Cada carga: el marco se abre de nuevo tras el primer cuadro del cargador; si tarda, se avisa con «Volver a intentar». */
     function cargar(url) {
       ultimaUrl = url;
+      cargado = false;
       ocultarSinConexion();
       avisoLento.hidden = true;
       clearTimeout(temporizadorLento);
-      clearTimeout(temporizadorRespaldo);
+      limpiarTemporizadores();
       if (navigator.onLine === false) { mostrarSinConexion(); return; }
       empezarProgreso();
-      temporizadorLento = setTimeout(function () { avisoLento.hidden = false; }, 25000);
-      /* Respaldo: si el evento «load» no llega, el cargador se quita a los 6 s y se fuerza el repintado. */
-      temporizadorRespaldo = setTimeout(function () {
-        if (cargadorVisible) alCargarPagina();
-        sacudir();
-      }, 6000);
-      marco.src = url;
+      temporizadorLento = setTimeout(function () { if (!cargado) avisoLento.hidden = false; }, T_LENTO);
+      T_SACUDIR.forEach(function (ms) { despues(ms, function () { if (cargadorVisible) sacudir(); }); });
+      despues(T_TOPE, function () { if (cargadorVisible) { alCargarPagina(); sacudir(); } });
+      trasPrimerCuadro(function () { marco.src = url; });
     }
 
     /* Un solo punto de entrada para «ya se ve la página»: quita el cargador y el aviso de espera. */
@@ -229,7 +289,6 @@
       clearTimeout(temporizadorLento);
       avisoLento.hidden = true;
       ocultarCargador();
-      progreso.classList.remove('activo');
       if (!pantallaLista) {
         pantallaLista = true;
         mostrarInstalarSiCorresponde();
@@ -240,9 +299,20 @@
       /* Ignora la carga vacía (about:blank) que el navegador hace al crear el marco. */
       var src = marco.getAttribute('src');
       if (!src || src === 'about:blank') return;
-      clearTimeout(temporizadorRespaldo);
-      alCargarPagina();
-      setTimeout(sacudir, 400);
+      cargado = true;
+      clearTimeout(temporizadorLento);
+      avisoLento.hidden = true;
+      if (!cargadorVisible) return;
+      if (listoRecibido) { alCargarPagina(); return; }
+      if (leer(CLAVE_LISTO) === '1') {
+        /* El simulador sabe avisar cuando ya se ve: se le da un momento para que pinte (sin pantalla blanca). */
+        despues(400, sacudir);
+        despues(T_ESPERA_LISTO, alCargarPagina);
+      } else {
+        /* Simulador sin el aviso: como antes, se muestra al cargar y se empuja por si Android se quedó esperando. */
+        despues(120, alCargarPagina);
+        despues(400, sacudir);
+      }
     });
 
     btnVolver.addEventListener('click', function () { cargar(ultimaUrl || (URL_APP + fragmento)); });
@@ -253,11 +323,20 @@
       if (!sinConexion.classList.contains('oculto')) { cargar(ultimaUrl || (URL_APP + fragmento)); }
     });
 
-    /* Mensajes del portal (Apps Script): «pgi-navegar» pide cargar otra página dentro del marco.
-       Solo se acepta si empieza por la dirección de URL_APP y la ruta es el inicio o ?page=… */
+    /* Mensajes del portal (Apps Script):
+       · «pgi-listo»: la página del simulador ya se ve → se quita el cargador (solo desde Google).
+       · «pgi-navegar»: pide cargar otra página dentro del marco. Solo se acepta si empieza por URL_APP y la ruta es el inicio o ?page=… */
     window.addEventListener('message', function (ev) {
       var d = ev.data;
-      if (!d || d.pl !== 'pgi-navegar' || typeof d.url !== 'string') return;
+      if (!d || typeof d !== 'object') return;
+      if (d.pl === 'pgi-listo') {
+        if (!ORIGEN_GOOGLE.test(String(ev.origin || ''))) return;
+        listoRecibido = true;
+        guardar(CLAVE_LISTO, '1');
+        if (cargadorVisible) alCargarPagina();
+        return;
+      }
+      if (d.pl !== 'pgi-navegar' || typeof d.url !== 'string') return;
       var u = d.url;
       if (u.indexOf(URL_APP) !== 0) return;
       var resto = u.slice(URL_APP.length);
@@ -274,11 +353,11 @@
 
     /* ── Instalación ─────────────────────────────────────────────── */
     var ua = navigator.userAgent || '';
-    var esIphone = /iPhone|iPod|iPad/.test(ua);
+    var esIphone = /iPhone|iPod|iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
     var esSafariIos = esIphone && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
-    var yaInstalada = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
-    var recordadaNo = false;
-    try { recordadaNo = localStorage.getItem(CLAVE_OCULTAR) === '1'; } catch (e) { }
+    var yaInstalada = (window.matchMedia && (matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: minimal-ui)').matches)) ||
+      navigator.standalone === true;
+    var recordadaNo = leer(CLAVE_OCULTAR) === '1';
 
     window.addEventListener('beforeinstallprompt', function (e) {
       e.preventDefault();
@@ -309,7 +388,7 @@
       instalar.classList.add('oculto');
       if (recordar) {
         recordadaNo = true;
-        try { localStorage.setItem(CLAVE_OCULTAR, '1'); } catch (e) { }
+        guardar(CLAVE_OCULTAR, '1');
       }
     }
 
@@ -325,15 +404,22 @@
     /* ── Arranque ───────────────────────────────────────────────── */
     if (URL_APP.indexOf('REEMPLAZAR') !== -1) {
       cargador.classList.add('oculto');
+      progreso.classList.add('oculto');
       sinConfig.classList.remove('oculto');
     } else {
       cargar(URL_APP + fragmento);
     }
 
+    /* El service worker se registra cuando el simulador ya se ve o a los 10 s, para no competir con la primera carga. */
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
+      var registrado = false;
+      var registrar = function () {
+        if (registrado) return;
+        registrado = true;
         navigator.serviceWorker.register('sw.js').catch(function () { });
-      });
+      };
+      window.addEventListener('load', function () { setTimeout(registrar, T_TOPE); });
+      var vigilar = setInterval(function () { if (!cargadorVisible) { clearInterval(vigilar); registrar(); } }, 500);
     }
   })();
   </script>
