@@ -13,5 +13,5 @@ completa, permite instalarlo como app y guarda solo estos archivos para abrir r�
 
 Pasos completos para publicarla: `DESPLIEGUE.md` (parte B), en el zip del proyecto de Apps Script.
 
-**Cargador:** todo lo que se mueve usa solo `transform` y `opacity`, así sigue fluido mientras Google carga. Se quita cuando
+**Cargador:** todo lo que se mueve usa solo `transform` y `opacity`, así sigue fluido mientras Google carga. Los puntos en onda (crecen y se encogen) son los de la app de ejemplo y se animan siempre, también con «reducir movimiento». Se quita cuando
 el simulador avisa `pgi-listo` (desde `Scripts_Common`, versión 15E) o, si no avisa, al terminar de cargar el marco; tope de 10 s.

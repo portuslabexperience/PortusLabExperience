@@ -3,7 +3,7 @@
    Nunca guarda ni responde por nada que venga de Google (script.google.com, googleusercontent.com…): esas
    peticiones no pasan por aquí y se cargan siempre en línea.
    Cuando cambies algo de esta carpeta, sube VERSION para que los celulares descarten la copia anterior. */
-var VERSION = 'portus-envoltorio-2026-11-13f';
+var VERSION = 'portus-envoltorio-2026-11-13g';
 var ARCHIVOS = [
   './',
   './index.html',
