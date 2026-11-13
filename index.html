@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="description" content="Portus Lab Experience · simulador educativo de operaciones portuarias y logísticas.">
+
+  <!-- Vista previa al compartir (WhatsApp, correo, redes). Cambia portuslabexperience por tu usuario de GitHub (DESPLIEGUE.md, B2). -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:site_name" content="Portus Lab">
+  <meta property="og:title" content="Portus Lab Experience">
+  <meta property="og:description" content="Simulador educativo de operaciones portuarias y logísticas. Instálalo en tu celular.">
+  <meta property="og:url" content="https://portuslabexperience.github.io/PortusLabExperience/">
+  <meta property="og:image" content="https://portuslabexperience.github.io/PortusLabExperience/iconos/vista-previa.jpg">
+  <meta property="og:image:secure_url" content="https://portuslabexperience.github.io/PortusLabExperience/iconos/vista-previa.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Logo de Portus Lab Experience: simulador educativo de operaciones portuarias y logísticas">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Portus Lab Experience">
+  <meta name="twitter:description" content="Simulador educativo de operaciones portuarias y logísticas. Instálalo en tu celular.">
+  <meta name="twitter:image" content="https://portuslabexperience.github.io/PortusLabExperience/iconos/vista-previa.jpg">
+  <title>Portus Lab Experience</title>
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0a2d6b">
+  <meta name="application-name" content="Portus Lab">
+  <link rel="icon" type="image/png" sizes="32x32" href="iconos/favicon-32.png">
+  <link rel="apple-touch-icon" href="iconos/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Portus Lab">
+
+  <style>
+    :root { color-scheme: light; --azul: #0a2d6b; --blanco: #ffffff; --texto-suave: #3c4f73; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; background: var(--blanco); }
+    body { font-family: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--azul); overflow: hidden; }
+    .oculto { display: none !important; }
+
+    /* Cargador: blanco y azul #0a2d6b, como el de la aplicación */
+    #cargador { position: fixed; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; background: var(--blanco); transition: opacity .35s ease; }
+    #cargador.saliendo { opacity: 0; pointer-events: none; }
+    #cargador img { width: 132px; height: 132px; animation: latir 1.6s ease-in-out infinite; }
+    #cargador h1 { margin: 6px 0 0; font-size: 1.4rem; font-weight: 700; }
+    #cargador p { margin: 0; font-size: .95rem; color: var(--texto-suave); min-height: 1.2em; }
+    .barra { width: min(240px, 70vw); height: 6px; margin-top: 8px; border-radius: 3px; background: #dbe3f1; overflow: hidden; }
+    .barra::after { content: ""; display: block; height: 100%; width: 40%; border-radius: 3px; background: var(--azul); animation: correr 1.2s ease-in-out infinite; }
+    @keyframes latir { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+    @keyframes correr { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+
+    /* El portal ocupa toda la pantalla; aparece al terminar de cargar */
+    #marco { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: var(--blanco); opacity: 0; transition: opacity .3s ease; }
+    #marco.listo { opacity: 1; }
+
+    /* Sin conexión y configuración */
+    #sinConexion, #sinConfig { position: fixed; inset: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; background: var(--blanco); }
+    #sinConexion h2, #sinConfig h2 { margin: 0; font-size: 1.35rem; }
+    #sinConexion p, #sinConfig p { margin: 0; max-width: 34ch; color: var(--texto-suave); }
+    .btn { font: inherit; font-weight: 700; min-height: 44px; min-width: 44px; padding: 10px 22px; border-radius: 10px; border: 2px solid var(--azul); background: var(--azul); color: var(--blanco); cursor: pointer; }
+    .btn-sec { background: var(--blanco); color: var(--azul); }
+    .btn:focus-visible { outline: 3px solid #1f6feb; outline-offset: 2px; }
+
+    /* Instalar (Android: botón; iPhone: indicación) */
+    #instalar { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 4; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--azul); border-radius: 14px; background: var(--blanco); box-shadow: 0 8px 24px rgba(10, 45, 107, .22); }
+    #instalar p { flex: 1 1 200px; margin: 0; font-size: .95rem; color: #1d2b4a; }
+    #instalar .acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      #cargador img, .barra::after { animation: none; }
+      #cargador, #marco { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="cargador" role="status" aria-live="polite">
+    <img src="iconos/icono-512.png" alt="" width="132" height="132">
+    <h1>Portus Lab Experience</h1>
+    <p id="cargadorTexto">Abriendo el simulador…</p>
+    <div class="barra" aria-hidden="true"></div>
+  </div>
+
+  <iframe id="marco" title="Portus Lab Experience" allow="clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+
+  <section id="sinConexion" class="oculto" role="alert" aria-labelledby="scTitulo">
+    <h2 id="scTitulo">Sin conexión</h2>
+    <p>No se puede abrir el simulador sin internet. Revisa tu señal o tu Wi-Fi y vuelve a intentarlo.</p>
+    <button type="button" class="btn" id="btnReintentar">Reintentar</button>
+  </section>
+
+  <section id="sinConfig" class="oculto" role="alert" aria-labelledby="scfTitulo">
+    <h2 id="scfTitulo">Falta configurar la dirección</h2>
+    <p>Abre index.html, pega en URL_APP la dirección /exec del simulador y vuelve a subir el archivo.</p>
+  </section>
+
+  <div id="instalar" class="oculto" role="region" aria-label="Instalar la aplicación">
+    <p id="instalarTexto">Instala Portus Lab en tu pantalla de inicio.</p>
+    <div class="acciones">
+      <button type="button" class="btn" id="btnInstalar">Instalar</button>
+      <button type="button" class="btn btn-sec" id="btnNoInstalar">Ahora no</button>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── Configuración ───────────────────────────────────────────────
+       Pega aquí la dirección /exec del simulador («Implementar → Gestionar implementaciones»).
+       Debe ser la misma que la Script Property URL_APP. No pongas «?» ni «#» al final. */
+    var URL_APP = 'https://script.google.com/macros/s/AKfycbzY8qvnMCLxp5jBIhIv-p7Rv0t5M3xfnzmHSLuZwb6RCN7iZZI3A5xSWh8GPh0SK4pyAA/exec';
+
+    var cargador = document.getElementById('cargador');
+    var cargadorTexto = document.getElementById('cargadorTexto');
+    var marco = document.getElementById('marco');
+    var sinConexion = document.getElementById('sinConexion');
+    var sinConfig = document.getElementById('sinConfig');
+    var instalar = document.getElementById('instalar');
+    var instalarTexto = document.getElementById('instalarTexto');
+    var btnInstalar = document.getElementById('btnInstalar');
+    var btnNoInstalar = document.getElementById('btnNoInstalar');
+    var btnReintentar = document.getElementById('btnReintentar');
+
+    var ultimaUrl = '';
+    var tope = null;
+    var pantallaLista = false;
+    var diferido = null;
+    var CLAVE_OCULTAR = 'pgi_instalar_ocultar';
+
+    /* #registro=CÓDIGO y #verificar=CÓDIGO: el fragmento pasa tal cual al portal (Google no lo ve). */
+    var FRAGMENTO = /^#(registro|verificar)=[A-Za-z0-9-]{4,40}$/;
+    var fragmento = FRAGMENTO.test(location.hash) ? location.hash : '';
+
+    /* Lo que el portal puede pedir dentro del envoltorio: el inicio o ?page=… (sin más parámetros). */
+    var RUTA_PERMITIDA = /^(\?page=[a-z]{2,20}(&c=[%A-Za-z0-9._~-]{1,120})?)?$/;
+
+    function mostrarSinConexion() { sinConexion.classList.remove('oculto'); }
+    function ocultarSinConexion() { sinConexion.classList.add('oculto'); }
+
+    function cargar(url) {
+      ultimaUrl = url;
+      ocultarSinConexion();
+      if (navigator.onLine === false) { mostrarSinConexion(); return; }
+      clearTimeout(tope);
+      pantallaLista = false;
+      marco.classList.remove('listo');
+      /* Si el portal no responde en 30 s, se ofrece Reintentar. */
+      tope = setTimeout(function () { mostrarSinConexion(); }, 30000);
+      marco.src = url;
+    }
+
+    marco.addEventListener('load', function () {
+      /* Ignora la carga vacía (about:blank) que el navegador hace al crear el marco. */
+      var src = marco.getAttribute('src');
+      if (!src || src === 'about:blank') return;
+      clearTimeout(tope);
+      ocultarSinConexion();
+      marco.classList.add('listo');
+      if (!pantallaLista) {
+        pantallaLista = true;
+        cargador.classList.add('saliendo');
+        setTimeout(function () { cargador.classList.add('oculto'); }, 360);
+        mostrarInstalarSiCorresponde();
+      }
+    });
+
+    /* Mensajes del portal (Apps Script): «pgi-navegar» pide cargar otra página dentro del marco.
+       Solo se acepta si empieza por la dirección de URL_APP y la ruta es el inicio o ?page=… */
+    window.addEventListener('message', function (ev) {
+      var d = ev.data;
+      if (!d || d.pl !== 'pgi-navegar' || typeof d.url !== 'string') return;
+      var u = d.url;
+      if (u.indexOf(URL_APP) !== 0) return;
+      var resto = u.slice(URL_APP.length);
+      if (!RUTA_PERMITIDA.test(resto)) return;
+      if (ev.source && typeof ev.source.postMessage === 'function') {
+        ev.source.postMessage({ pl: 'pgi-ok', url: u }, '*');
+      }
+      cargar(URL_APP + resto);
+    });
+
+    btnNoInstalar.addEventListener('click', function () { ocultarInstalar(true); });
+    btnReintentar.addEventListener('click', function () { cargar(ultimaUrl || (URL_APP + fragmento)); });
+
+    window.addEventListener('offline', mostrarSinConexion);
+    window.addEventListener('online', function () {
+      if (!sinConexion.classList.contains('oculto')) { cargar(ultimaUrl || (URL_APP + fragmento)); }
+    });
+
+    /* ── Instalación ─────────────────────────────────────────────── */
+    var ua = navigator.userAgent || '';
+    var esIphone = /iPhone|iPod/.test(ua) || (/iPad/.test(ua));
+    var esSafariIos = esIphone && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+    var yaInstalada = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    var recordadaNo = false;
+    try { recordadaNo = localStorage.getItem(CLAVE_OCULTAR) === '1'; } catch (e) { }
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      diferido = e;
+      mostrarInstalarSiCorresponde();
+    });
+    window.addEventListener('appinstalled', function () {
+      diferido = null;
+      ocultarInstalar(false);
+    });
+
+    function mostrarInstalarSiCorresponde() {
+      if (!pantallaLista || yaInstalada || recordadaNo) return;
+      if (diferido) {
+        instalarTexto.textContent = 'Instala Portus Lab en tu pantalla de inicio para abrirlo como una app.';
+        btnInstalar.classList.remove('oculto');
+        btnNoInstalar.textContent = 'Ahora no';
+        instalar.classList.remove('oculto');
+      } else if (esSafariIos) {
+        instalarTexto.textContent = 'Para instalarla en tu iPhone: toca Compartir y luego «Agregar a inicio».';
+        btnInstalar.classList.add('oculto');
+        btnNoInstalar.textContent = 'Entendido';
+        instalar.classList.remove('oculto');
+      }
+    }
+
+    function ocultarInstalar(recordar) {
+      instalar.classList.add('oculto');
+      if (recordar) {
+        recordadaNo = true;
+        try { localStorage.setItem(CLAVE_OCULTAR, '1'); } catch (e) { }
+      }
+    }
+
+    btnInstalar.addEventListener('click', function () {
+      if (!diferido) return;
+      var aviso = diferido;
+      diferido = null;
+      aviso.prompt();
+      aviso.userChoice.then(function (r) { ocultarInstalar(r && r.outcome !== 'accepted'); }).catch(function () { ocultarInstalar(false); });
+    });
+
+    /* ── Arranque ───────────────────────────────────────────────── */
+    if (URL_APP.indexOf('REEMPLAZAR') !== -1) {
+      cargador.classList.add('oculto');
+      sinConfig.classList.remove('oculto');
+    } else {
+      cargar(URL_APP + fragmento);
+      setTimeout(function () {
+        if (!pantallaLista) cargadorTexto.textContent = 'Esto puede tardar unos segundos la primera vez.';
+      }, 6000);
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function () { });
+      });
+    }
+  })();
+  </script>
+</body>
+</html>
